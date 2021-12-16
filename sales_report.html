@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sellmasters - Riepilogo delle vendite</title>
+
+    <!-- vue js -->
+    <script src="https://unpkg.com/vue@next"></script>
+    <script src="https://unpkg.com/vue-router@4"></script>
+
+    <!-- Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- Bootstrap 5 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      const app = {
+        /*html*/
+        template: `
+          <main class="main" id="top">
+            <section>
+              <div class="container">
+                <div class="row">
+                  <div class="col-12">
+                    <div class="card my-5">
+                      <div class="card-header bg-primary text-white">
+                        <h4 class="card-title">{{ title }}</h4>
+                        <p class="card-title text-white-50 col-3">{{ report_ref_data }}</p>
+                        <p class="card-title text-white-50 col-3 ">{{ report_rage }}</p>
+                      </div>
+                      <div class="card-body">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th scope="col">#</th>
+                              <th scope="col">First</th>
+                              <th scope="col">Last</th>
+                              <th scope="col">Handle</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <th scope="row">1</th>
+                              <td>Mark</td>
+                              <td>Otto</td>
+                              <td>@mdo</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">2</th>
+                              <td>Jacob</td>
+                              <td>Thornton</td>
+                              <td>@fat</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">3</th>
+                              <td colspan="2">Larry the Bird</td>
+                              <td>@twitter</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </main>
+        `,
+        data() {
+          return {
+            title: "Sellmasters riepilogo di vendita",
+            report_ref_data: "Yesterday",
+            start_date: "2021-12-16",
+            end_date: "2021-12-16",
+            ranges_date: {},
+            show_order: [
+              "today",
+              "yesterday",
+              "currentWeek",
+              "last_week",
+            ],
+            showing_range: 0,
+          };
+        },
+        methods: {
+          prepare_range_date() {
+            let day = 24 * 60 * 60 * 1000;
+            let today = new Date();
+            let yesterday = new Date(Date.now() - day);
+            let week_start = new Date(Date.now() -  (today.getUTCDay() - 1) * day );
+            let last_week_start = new Date(Date.now() - ( today.getUTCDay() + 6 )* day );
+            let end_week_start = new Date(Date.now() - today.getUTCDay() * day );
+            
+            this.ranges_date.today = [today,today];
+            this.ranges_date.yesterday = [yesterday,yesterday];
+            this.ranges_date.currentWeek = [week_start,today];
+            this.ranges_date.last_week = [last_week_start,end_week_start];
+
+            this.manage_showing_data();
+          },
+          retrive_report_data() {
+            fetch(
+              `./retrieve_data.php?data_inizio=${this.start_date}&data_fine=${this.end_date}`,
+              { method: "GET" }
+            )
+              .then((response) => response.text())
+              .then((result) => console.log(result))
+              .catch((error) => console.log("error", error));
+          },
+          manage_showing_data() {
+            console.log(this.ranges_date[this.show_order[this.showing_range]]);
+            this.showing_range == 3 ? this.showing_range = 0 : this.showing_range += 1;
+            setTimeout(() => {
+              this.manage_showing_data();
+            }, 1000);
+          },
+        },
+        computed: {
+          report_rage() {
+
+            return `Dal ${this.start_date} al ${this.end_date}`;
+          },
+        },
+        beforeMount() {
+          this.prepare_range_date();
+        },
+      };
+
+      Vue.createApp(app).mount("#app");
+    </script>
+  </body>
+</html>
