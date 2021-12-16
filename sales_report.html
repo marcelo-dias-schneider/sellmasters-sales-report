@@ -48,28 +48,17 @@
                           <thead>
                             <tr>
                               <th scope="col">#</th>
-                              <th scope="col">First</th>
-                              <th scope="col">Last</th>
-                              <th scope="col">Handle</th>
+                              <th scope="col">Cliente</th>
+                              <th scope="col">Quantità</th>
+                              <th scope="col">Importo</th>
                             </tr>
                           </thead>
                           <tbody>
-                            <tr>
-                              <th scope="row">1</th>
-                              <td>Mark</td>
-                              <td>Otto</td>
-                              <td>@mdo</td>
-                            </tr>
-                            <tr>
-                              <th scope="row">2</th>
-                              <td>Jacob</td>
-                              <td>Thornton</td>
-                              <td>@fat</td>
-                            </tr>
-                            <tr>
-                              <th scope="row">3</th>
-                              <td colspan="2">Larry the Bird</td>
-                              <td>@twitter</td>
+                            <tr v-for="(cliente, key) in report_data" :key="key">
+                              <th scope="row">{{ key }}</th>
+                              <td>{{ cliente.nome }}</td>
+                              <td>{{ cliente.quantita }}</td>
+                              <td>{{ cliente.totale_ordine }}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -84,17 +73,18 @@
         data() {
           return {
             title: "Sellmasters riepilogo di vendita",
-            report_ref_data: "Yesterday",
+            report_ref_data: null,
             start_date: "2021-12-16",
             end_date: "2021-12-16",
             ranges_date: {},
             show_order: [
-              "today",
-              "yesterday",
-              "currentWeek",
-              "last_week",
+              "Oggi",
+              "Ieri",
+              "Settimana attuale",
+              "Settimana scorsa",
             ],
             showing_range: 0,
+            report_data: null,
           };
         },
         methods: {
@@ -102,15 +92,20 @@
             let day = 24 * 60 * 60 * 1000;
             let today = new Date();
             let yesterday = new Date(Date.now() - day);
-            let week_start = new Date(Date.now() -  (today.getUTCDay() - 1) * day );
-            let last_week_start = new Date(Date.now() - ( today.getUTCDay() + 6 )* day );
-            let end_week_start = new Date(Date.now() - today.getUTCDay() * day );
-            
-            this.ranges_date.today = [today,today];
-            this.ranges_date.yesterday = [yesterday,yesterday];
-            this.ranges_date.currentWeek = [week_start,today];
-            this.ranges_date.last_week = [last_week_start,end_week_start];
+            let week_start = new Date(
+              Date.now() - (today.getUTCDay() - 1) * day
+            );
+            let last_week_start = new Date(
+              Date.now() - (today.getUTCDay() + 6) * day
+            );
+            let end_week_start = new Date(Date.now() - today.getUTCDay() * day);
 
+            this.ranges_date = [
+              [today, today],
+              [yesterday, yesterday],
+              [week_start, today],
+              [last_week_start, end_week_start],
+            ];
             this.manage_showing_data();
           },
           retrive_report_data() {
@@ -118,21 +113,27 @@
               `./retrieve_data.php?data_inizio=${this.start_date}&data_fine=${this.end_date}`,
               { method: "GET" }
             )
-              .then((response) => response.text())
-              .then((result) => console.log(result))
+              .then((response) => response.json())
+              .then((result) => this.report_data = result)
               .catch((error) => console.log("error", error));
           },
           manage_showing_data() {
-            console.log(this.ranges_date[this.show_order[this.showing_range]]);
-            this.showing_range == 3 ? this.showing_range = 0 : this.showing_range += 1;
+            let date = this.ranges_date[this.showing_range];
+            this.report_ref_data = this.show_order[this.showing_range];
+            this.start_date = `${date[0].getFullYear()}-${date[0].getMonth()}-${date[0].getDate()}`;
+            this.end_date = `${date[1].getFullYear()}-${date[1].getMonth()}-${date[1].getDate()}`;
+            this.showing_range == 3
+              ? (this.showing_range = 0)
+              : (this.showing_range += 1);
+            this.retrive_report_data()
             setTimeout(() => {
               this.manage_showing_data();
-            }, 1000);
+            }, 10000);
           },
         },
         computed: {
           report_rage() {
-
+            if (this.start_date == this.end_date) return `${this.start_date}`;
             return `Dal ${this.start_date} al ${this.end_date}`;
           },
         },
