@@ -36,43 +36,43 @@
             <section>
               <div class="card">
                 <div class="card-header">
-                  <div class="row">
-                    <h4 class="card-title text-primary text-center">{{ title }}</h4>
-                    <div class="input-group text-center d-xl-none">
-                      <span class="input-group-text p-2 bg-primary text-white" v-if="sales_total">
-                        Ordini: {{ orders_total }}
-                      </span>
-                      <span class="input-group-text p-2 bg-primary text-white" v-if="sales_total">
-                        Totale: {{ sales_total.toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}
-                      </span>
-                      <span class="input-group-text p-2 bg-primary text-white" v-if="sales_total">
-                        Data: {{ report_rage }} 
-                      </span>
-                    </div>
+                  <div>
+                  <h4 class="card-title text-primary text-center">{{ title }}</h4>
                   </div>
-                </div>
-                <div class="card-header">
-                  <ul class="nav nav-tabs card-header-tabs d-flex">
-                    <li class="nav-item mx-1" v-for="(options, key) in display_order">
-                      <p 
-                        class="nav-link"
-                        :class="options == report_ref_data ? 'active bg-primary text-white' : 'bg-secondary text-white'"
-                        :aria-current="options == report_ref_data"
-                        @click="set_range(key)"
-                      >
-                        {{ options }}
+                  <div class="d-flex d-xl-none">
+                      <p class="my-1 rounded p-2 bg-primary text-white" v-if="sales_total">
+                        Ordini: {{ orders_total }}
                       </p>
-                    </li>
-                    <li class="nav-item mx-1 d-none d-xl-block flex-grow-1">
-                      <p class="nav-link float-end bg-primary text-white" v-if="sales_total">Totale di ordini: {{ orders_total }}</p>
-                    </li>
-                    <li class="nav-item mx-1 d-none d-xl-block	">
-                      <p class="nav-link float-end bg-primary text-white" v-if="sales_total">Totale di vendita: {{ sales_total.toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}</p>
-                    </li>
-                    <li class="nav-item mx-1 d-none d-xl-block">
-                      <p class="nav-link float-end bg-primary text-white" v-if="sales_total">{{ report_rage }}</p>
-                    </li>
-                  </ul>
+                      <p class="m-1 rounded p-2 bg-primary text-white" v-if="sales_total">
+                        Totale: {{ sales_total.toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}
+                      </p>
+                      <p class="my-1 rounded p-2 bg-primary text-white" v-if="sales_total">
+                        {{ report_rage }} 
+                      </p>
+                  </div>
+                  <div>
+                    <ul class="nav nav-tabs card-header-tabs d-flex">
+                      <li class="nav-item mx-1" v-for="(options, key) in display_order">
+                        <p 
+                          class="nav-link"
+                          :class="options == report_ref_data ? 'active bg-primary text-white' : 'bg-secondary text-white'"
+                          :aria-current="options == report_ref_data"
+                          @click="set_range(key)"
+                        >
+                          {{ options }}
+                        </p>
+                      </li>
+                      <li class="nav-item mx-1 d-none d-xl-block flex-grow-1">
+                        <p class="nav-link float-end bg-primary text-white" v-if="sales_total">Totale di ordini: {{ orders_total }}</p>
+                      </li>
+                      <li class="nav-item mx-1 d-none d-xl-block	">
+                        <p class="nav-link float-end bg-primary text-white" v-if="sales_total">Totale di vendita: {{ sales_total.toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}</p>
+                      </li>
+                      <li class="nav-item mx-1 d-none d-xl-block">
+                        <p class="nav-link float-end bg-primary text-white" v-if="sales_total">{{ report_rage }}</p>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
                 <div class="card-body">
                   <div class="row">
@@ -119,12 +119,7 @@
             start_date: "2021-12-16",
             end_date: "2021-12-16",
             ranges_date: {},
-            display_order: [
-              "Oggi",
-              "Ieri",
-              "Settimana attuale",
-              "Settimana scorsa",
-            ],
+            display_order: ["Oggi", "Ieri", "Sett. attuale", "Sett. scorsa"],
             showing_range: 0,
             report_data: null,
             sales_total: null,
@@ -197,41 +192,49 @@
         },
         computed: {
           report_rage() {
-            if (this.start_date == this.end_date) return `Data: ${this.start_date}`;
+            if (this.start_date == this.end_date)
+              return `Data: ${this.start_date}`;
             return `Dal ${this.start_date} al ${this.end_date}`;
           },
           report_data_sliced() {
             let report_data_sliced = {};
-            let quntity_to_slice = parseInt((window.innerHeight - 210) / 40);
-            console.log(quntity_to_slice);
-            if (quntity_to_slice < Object.keys(this.report_data).length / 3) {
-              quntity_to_slice = parseInt(
-                Object.keys(this.report_data).length / 3 + 1
-              );
-            }
-            console.log(quntity_to_slice);
-            if (Object.keys(this.report_data).length <= quntity_to_slice * 2) {
-              report_data_sliced.one = this.report_data.slice(
-                0,
-                quntity_to_slice
-              );
-              report_data_sliced.two = this.report_data.slice(
-                quntity_to_slice,
+            let quntity_to_slice = 500;
+            if (window.innerWidth >= 1200) {
+              quntity_to_slice = parseInt((window.innerHeight - 210) / 40);
+              console.log(quntity_to_slice);
+              if (quntity_to_slice < Object.keys(this.report_data).length / 3) {
+                quntity_to_slice = parseInt(
+                  Object.keys(this.report_data).length / 3 + 1
+                );
+              }
+              if (
+                Object.keys(this.report_data).length <=
                 quntity_to_slice * 2
-              );
+              ) {
+                report_data_sliced.one = this.report_data.slice(
+                  0,
+                  quntity_to_slice
+                );
+                report_data_sliced.two = this.report_data.slice(
+                  quntity_to_slice,
+                  quntity_to_slice * 2
+                );
+              } else {
+                report_data_sliced.one = this.report_data.slice(
+                  0,
+                  quntity_to_slice
+                );
+                report_data_sliced.two = this.report_data.slice(
+                  quntity_to_slice,
+                  quntity_to_slice * 2
+                );
+                report_data_sliced.three = this.report_data.slice(
+                  quntity_to_slice * 2,
+                  quntity_to_slice * 3
+                );
+              }
             } else {
-              report_data_sliced.one = this.report_data.slice(
-                0,
-                quntity_to_slice
-              );
-              report_data_sliced.two = this.report_data.slice(
-                quntity_to_slice,
-                quntity_to_slice * 2
-              );
-              report_data_sliced.three = this.report_data.slice(
-                quntity_to_slice * 2,
-                quntity_to_slice * 3
-              );
+              report_data_sliced.one = this.report_data;
             }
             return report_data_sliced;
           },
