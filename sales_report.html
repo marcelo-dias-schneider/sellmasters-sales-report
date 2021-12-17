@@ -34,9 +34,24 @@
         template: `
           <main class="main" id="top">
             <section>
-              <div class="card text-center">
+              <div class="card">
                 <div class="card-header">
-                  <h4 class="card-title text-primary">{{ title }}</h4>
+                  <div class="row">
+                    <h4 class="card-title text-primary text-center">{{ title }}</h4>
+                    <div class="input-group text-center d-xl-none">
+                      <span class="input-group-text p-2 bg-primary text-white" v-if="sales_total">
+                        Ordini: {{ orders_total }}
+                      </span>
+                      <span class="input-group-text p-2 bg-primary text-white" v-if="sales_total">
+                        Totale: {{ sales_total.toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}
+                      </span>
+                      <span class="input-group-text p-2 bg-primary text-white" v-if="sales_total">
+                        Data: {{ report_rage }} 
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-header">
                   <ul class="nav nav-tabs card-header-tabs d-flex">
                     <li class="nav-item mx-1" v-for="(options, key) in display_order">
                       <p 
@@ -48,10 +63,13 @@
                         {{ options }}
                       </p>
                     </li>
-                    <li class="nav-item mx-1 flex-grow-1">
+                    <li class="nav-item mx-1 d-none d-xl-block flex-grow-1">
+                      <p class="nav-link float-end bg-primary text-white" v-if="sales_total">Totale di ordini: {{ orders_total }}</p>
+                    </li>
+                    <li class="nav-item mx-1 d-none d-xl-block	">
                       <p class="nav-link float-end bg-primary text-white" v-if="sales_total">Totale di vendita: {{ sales_total.toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}</p>
                     </li>
-                    <li class="nav-item mx-1">
+                    <li class="nav-item mx-1 d-none d-xl-block">
                       <p class="nav-link float-end bg-primary text-white" v-if="sales_total">{{ report_rage }}</p>
                     </li>
                   </ul>
@@ -75,7 +93,7 @@
                             <th scope="col">#</th>
                             <th scope="col">Cliente</th>
                             <th scope="col">Quantità</th>
-                            <th scope="col">Importo</th>
+                            <th class="text-end" scope="col">Importo</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -83,7 +101,7 @@
                             <th scope="row">{{ key + 1 }}</th>
                             <td>{{ cliente.nome }}</td>
                             <td>{{ cliente.quantita }}</td>
-                            <td>{{ Number(cliente.totale_ordine).toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}</td>
+                            <td class="text-end">{{ Number(cliente.totale_ordine).toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}</td>
                           </tr>
                         </tbody>
                       </table>
@@ -110,6 +128,7 @@
             showing_range: 0,
             report_data: null,
             sales_total: null,
+            orders_total: null,
             loading: true,
           };
         },
@@ -142,11 +161,14 @@
             )
               .then((response) => response.json())
               .then((result) => {
-                this.report_data = result.sort((a,b) => { 
-                  return Number(b.totale_ordine) - Number(a.totale_ordine) 
+                this.report_data = result.sort((a, b) => {
+                  return Number(b.totale_ordine) - Number(a.totale_ordine);
                 });
                 this.sales_total = result
                   .map((client) => Number(client.totale_ordine))
+                  .reduce((prev, next) => prev + next);
+                this.orders_total = result
+                  .map((client) => Number(client.quantita))
                   .reduce((prev, next) => prev + next);
                 this.loading = false;
               })
@@ -169,27 +191,50 @@
             }, 30000);
           },
           set_range(range) {
-            this.showing_range = range
-            this.manage_showing_data()
-          }
+            this.showing_range = range;
+            this.manage_showing_data();
+          },
         },
         computed: {
           report_rage() {
-            if (this.start_date == this.end_date) return `${this.start_date}`;
+            if (this.start_date == this.end_date) return `Data: ${this.start_date}`;
             return `Dal ${this.start_date} al ${this.end_date}`;
           },
           report_data_sliced() {
             let report_data_sliced = {};
-            if (Object.keys(this.report_data).length <= 30) {
-              report_data_sliced.one = this.report_data.slice(0, 15);
-              report_data_sliced.two = this.report_data.slice(15, 30);
-            } else {
-              report_data_sliced.one = this.report_data.slice(0, 15);
-              report_data_sliced.two = this.report_data.slice(15, 30);
-              report_data_sliced.three = this.report_data.slice(30, 45);
+            let quntity_to_slice = parseInt((window.innerHeight - 210) / 40);
+            console.log(quntity_to_slice);
+            if (quntity_to_slice < Object.keys(this.report_data).length / 3) {
+              quntity_to_slice = parseInt(
+                Object.keys(this.report_data).length / 3 + 1
+              );
             }
-            return report_data_sliced
-          }
+            console.log(quntity_to_slice);
+            if (Object.keys(this.report_data).length <= quntity_to_slice * 2) {
+              report_data_sliced.one = this.report_data.slice(
+                0,
+                quntity_to_slice
+              );
+              report_data_sliced.two = this.report_data.slice(
+                quntity_to_slice,
+                quntity_to_slice * 2
+              );
+            } else {
+              report_data_sliced.one = this.report_data.slice(
+                0,
+                quntity_to_slice
+              );
+              report_data_sliced.two = this.report_data.slice(
+                quntity_to_slice,
+                quntity_to_slice * 2
+              );
+              report_data_sliced.three = this.report_data.slice(
+                quntity_to_slice * 2,
+                quntity_to_slice * 3
+              );
+            }
+            return report_data_sliced;
+          },
         },
         beforeMount() {
           this.prepare_range_date();
