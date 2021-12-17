@@ -63,7 +63,12 @@
                         <span class="visually-hidden">Loading...</span>
                       </div>
                     </div>
-                    <div class="col-4" v-if="!loading">
+                    <div
+                      :class="'col-' + 12 / Object.keys(report_data_sliced).length "
+                      v-if="!loading"
+                      v-for="(array_of_data, key) in report_data_sliced" 
+                      :key="key"
+                    >
                       <table class="table table-striped ">
                         <thead>
                           <tr>
@@ -74,7 +79,7 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <tr v-for="(cliente, key) in report_data" :key="key">
+                          <tr v-for="(cliente, key) in array_of_data" :key="key">
                             <th scope="row">{{ key + 1 }}</th>
                             <td>{{ cliente.nome }}</td>
                             <td>{{ cliente.quantita }}</td>
@@ -137,7 +142,9 @@
             )
               .then((response) => response.json())
               .then((result) => {
-                this.report_data = result;
+                this.report_data = result.sort((a,b) => { 
+                  return Number(b.totale_ordine) - Number(a.totale_ordine) 
+                });
                 this.sales_total = result
                   .map((client) => Number(client.totale_ordine))
                   .reduce((prev, next) => prev + next);
@@ -159,7 +166,7 @@
             this.retrive_report_data();
             setTimeout(() => {
               this.manage_showing_data();
-            }, 10000);
+            }, 30000);
           },
           set_range(range) {
             this.showing_range = range
@@ -171,6 +178,18 @@
             if (this.start_date == this.end_date) return `${this.start_date}`;
             return `Dal ${this.start_date} al ${this.end_date}`;
           },
+          report_data_sliced() {
+            let report_data_sliced = {};
+            if (Object.keys(this.report_data).length <= 30) {
+              report_data_sliced.one = this.report_data.slice(0, 15);
+              report_data_sliced.two = this.report_data.slice(15, 30);
+            } else {
+              report_data_sliced.one = this.report_data.slice(0, 15);
+              report_data_sliced.two = this.report_data.slice(15, 30);
+              report_data_sliced.three = this.report_data.slice(30, 45);
+            }
+            return report_data_sliced
+          }
         },
         beforeMount() {
           this.prepare_range_date();
