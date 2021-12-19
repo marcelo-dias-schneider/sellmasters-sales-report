@@ -27,15 +27,15 @@
     ></script>
     <style>
       .scrollmenu {
-        overflow: auto;
+        overflow-x: auto;
         white-space: nowrap;
       }
-      
+
       .scrollmenu a {
         display: inline-block;
         text-decoration: none;
       }
-      </style>
+    </style>
   </head>
   <body>
     <div id="app"></div>
@@ -45,10 +45,10 @@
         template: `
           <main class="main" id="top">
             <section>
-              <div class="card">
-                <div class="card-header">
+              <div class="card p-1">
+                <div class="card-header py-0">
                   <div>
-                  <h4 class="card-title text-primary text-center">{{ title }}</h4>
+                  <h4 class="card-title text-primary text-center my-2">{{ title }}</h4>
                   </div>
                   <div class="d-flex d-xl-none scrollmenu">
                     <a class="my-1 rounded p-2 bg-primary text-white" v-if="sales_total">
@@ -61,28 +61,37 @@
                       {{ report_rage }} 
                     </a>
                   </div>
-                  <div>
-                    <ul class="nav nav-tabs card-header-tabs d-flex">
-                      <li class="nav-item mx-1" v-for="(options, key) in display_order">
-                        <p 
-                          class="nav-link"
-                          :class="options == report_ref_data ? 'active bg-primary text-white' : 'bg-secondary text-white'"
-                          :aria-current="options == report_ref_data"
-                          @click="set_range(key)"
-                        >
-                          {{ options }}
-                        </p>
-                      </li>
-                      <li class="nav-item mx-1 d-none d-xl-block flex-grow-1">
-                        <p class="nav-link float-end bg-primary text-white" v-if="sales_total">Totale di ordini: {{ orders_total }}</p>
-                      </li>
-                      <li class="nav-item mx-1 d-none d-xl-block	">
-                        <p class="nav-link float-end bg-primary text-white" v-if="sales_total">Totale di vendita: {{ sales_total.toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}</p>
-                      </li>
-                      <li class="nav-item mx-1 d-none d-xl-block">
-                        <p class="nav-link float-end bg-primary text-white" v-if="sales_total">{{ report_rage }}</p>
-                      </li>
-                    </ul>
+                  <div class="d-flex scrollmenu my-0">
+                    <a 
+                      class="rounded-top p-2 mx-1"
+                      v-for="(options, key) in display_order"
+                      :class="options == report_ref_data ? 'active bg-primary text-white' : 'bg-secondary text-white'"
+                      @click="set_range(key)"
+                    >
+                      {{ options }}
+                    </a>
+                    <a 
+                      class="float-end rounded-top p-2 mx-1 d-none d-xl-block my-0 flex-grow-1"
+                    ></a>
+                    <a 
+                      class="float-end rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0"
+                      v-if="sales_total"
+                    >
+                      Totale di ordini: {{ orders_total }}
+                    </a>
+                    <a 
+                      class="float-end rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0"
+                      v-if="sales_total"
+                    >
+                      Totale di vendita: {{ 
+                        sales_total.toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) 
+                      }}
+                    </a>
+                    <a 
+                      class="float-end rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0" 
+                      v-if="sales_total"
+                    >{{ report_rage }}
+                    </a>
                   </div>
                 </div>
                 <div class="card-body">
@@ -211,7 +220,7 @@
             let report_data_sliced = {};
             let quntity_to_slice = 500;
             if (window.innerWidth >= 1200) {
-              quntity_to_slice = parseInt((window.innerHeight - 210) / 40);
+              quntity_to_slice = parseInt((window.innerHeight - 220) / 40);
               console.log(quntity_to_slice);
               if (quntity_to_slice < Object.keys(this.report_data).length / 3) {
                 quntity_to_slice = parseInt(
