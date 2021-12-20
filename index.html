@@ -145,6 +145,7 @@
             sales_total: null,
             orders_total: null,
             loading: true,
+            timeoutId: null,
           };
         },
         methods: {
@@ -204,7 +205,8 @@
               ? (this.showing_range = 0)
               : (this.showing_range += 1);
             this.retrive_report_data();
-            setTimeout(() => {
+            clearTimeout(this.timeoutId);
+            this.timeoutId = setTimeout(() => {
               this.manage_showing_data();
             }, 30000);
           },
