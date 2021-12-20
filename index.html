@@ -117,7 +117,7 @@
                         </thead>
                         <tbody>
                           <tr v-for="(cliente, key) in array_of_data" :key="key">
-                            <th scope="row">{{ key + 1 }}</th>
+                            <th scope="row">{{ cliente.index }}</th>
                             <td>{{ cliente.nome }}</td>
                             <td>{{ cliente.quantita }}</td>
                             <td class="text-end">{{ Number(cliente.totale_ordine).toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}</td>
@@ -187,9 +187,15 @@
               .then((response) => response.json())
               .then((result) => {
                 // order the report by "totale_ordine"
-                this.report_data = result.sort((a, b) => {
+                let report_data = result.sort((a, b) => {
                   return Number(b.totale_ordine) - Number(a.totale_ordine);
                 });
+                // create the index of each client
+                let index = 0;
+                report_data.forEach((column, key) => {
+                  report_data[key].index = key + 1;
+                });
+                this.report_data = report_data;
                 // sum the sales_total
                 this.sales_total = result
                   .map((client) => Number(client.totale_ordine))
@@ -292,7 +298,7 @@
                 );
               }
             } else {
-              // display data in onde column
+              // display data in one column
               report_data_sliced.one = this.report_data;
             }
             return report_data_sliced;
