@@ -195,8 +195,8 @@
           manage_showing_data() {
             let date = this.ranges_date[this.showing_range];
             this.report_ref_data = this.display_order[this.showing_range];
-            this.start_date = `${date[0].getFullYear()}-${date[0].getMonth()}-${date[0].getDate()}`;
-            this.end_date = `${date[1].getFullYear()}-${date[1].getMonth()}-${date[1].getDate()}`;
+            this.start_date = `${date[0].getFullYear()}-${(date[0].getMonth() + 1)}-${date[0].getDate()}`;
+            this.end_date = `${date[1].getFullYear()}-${(date[1].getMonth() + 1)}-${date[1].getDate()}`;
             this.showing_range == 3
               ? (this.showing_range = 0)
               : (this.showing_range += 1);
