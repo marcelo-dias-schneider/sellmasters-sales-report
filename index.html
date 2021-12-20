@@ -151,14 +151,13 @@
           prepare_range_date() {
             let day = 24 * 60 * 60 * 1000;
             let today = new Date();
+            let week_ref_day = today.getUTCDay() == 0 ? 7 : today.getUTCDay();
             let yesterday = new Date(Date.now() - day);
-            let week_start = new Date(
-              Date.now() - (today.getUTCDay() - 1) * day
-            );
+            let week_start = new Date(Date.now() - (week_ref_day - 1) * day);
             let last_week_start = new Date(
-              Date.now() - (today.getUTCDay() + 6) * day
+              Date.now() - (week_ref_day + 6) * day
             );
-            let end_week_start = new Date(Date.now() - today.getUTCDay() * day);
+            let end_week_start = new Date(Date.now() - week_ref_day * day);
 
             this.ranges_date = [
               [today, today],
@@ -195,8 +194,12 @@
           manage_showing_data() {
             let date = this.ranges_date[this.showing_range];
             this.report_ref_data = this.display_order[this.showing_range];
-            this.start_date = `${date[0].getFullYear()}-${(date[0].getMonth() + 1)}-${date[0].getDate()}`;
-            this.end_date = `${date[1].getFullYear()}-${(date[1].getMonth() + 1)}-${date[1].getDate()}`;
+            this.start_date = `${date[0].getFullYear()}-${
+              date[0].getMonth() + 1
+            }-${date[0].getDate()}`;
+            this.end_date = `${date[1].getFullYear()}-${
+              date[1].getMonth() + 1
+            }-${date[1].getDate()}`;
             this.showing_range == 3
               ? (this.showing_range = 0)
               : (this.showing_range += 1);
