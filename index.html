@@ -63,24 +63,13 @@
                   </div>
                   <div class="d-flex scrollmenu my-0">
                     <a 
-                      class="rounded-top p-2 mx-1"
-                      v-for="(options, key) in display_order"
-                      :class="options == report_ref_data ? 'active bg-primary text-white' : 'bg-secondary text-white'"
-                      @click="set_range(key)"
-                    >
-                      {{ options }}
-                    </a>
-                    <a 
-                      class="float-end rounded-top p-2 mx-1 d-none d-xl-block my-0 flex-grow-1"
-                    ></a>
-                    <a 
-                      class="float-end rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0"
+                      class="rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0"
                       v-if="sales_total"
                     >
                       Totale di ordini: {{ orders_total }}
                     </a>
                     <a 
-                      class="float-end rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0"
+                      class="rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0"
                       v-if="sales_total"
                     >
                       Totale di vendita: {{ 
@@ -88,9 +77,20 @@
                       }}
                     </a>
                     <a 
-                      class="float-end rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0" 
+                      class="rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0" 
                       v-if="sales_total"
                     >{{ report_rage }}
+                    </a>
+                    <a 
+                      class="rounded-top p-2 mx-1 d-none d-xl-block my-0 flex-grow-1"
+                    ></a>
+                    <a 
+                      class="rounded-top p-2 mx-1"
+                      v-for="(options, key) in display_order"
+                      :class="options == report_ref_data ? 'active bg-primary text-white' : 'bg-secondary text-white'"
+                      @click="set_range(key)"
+                    >
+                      {{ options }}
                     </a>
                   </div>
                 </div>
