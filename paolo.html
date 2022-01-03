@@ -51,7 +51,6 @@
                 </header>
 
                 <main>
-                  <h1>Esportazione degli ordini Shopify</h1>
                 <form action="" method="get" @submit.prevent="retrieve_data()">
                     <div class="form-floating my-3">
                       <select class="form-select" id="merchant" v-model="selected_merchant">
@@ -59,7 +58,7 @@
                         <option
                         v-for="(merchant, key) in merchants"
                         :key="key"
-                        :value="merchant.value"
+                        :value="key"
                       >
                           {{merchant.name}}
                         </option>
@@ -95,10 +94,26 @@
         data() {
           return {
             merchants: [
-              { name: "Etape", value: "etape" },
-              { name: "Francavilla", value: "francavilla" },
-              { name: "Old England", value: "oldengland" },
-              { name: "Sellmasters", value: "sellmasters" },
+              {
+                name: "Etape",
+                value: "etape",
+                link: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+              },
+              {
+                name: "Francavilla",
+                value: "francavilla",
+                link: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+              },
+              {
+                name: "Old England",
+                value: "oldengland",
+                link: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+              },
+              {
+                name: "Sellmasters",
+                value: "sellmasters",
+                link: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+              },
             ],
             selected_merchant: null,
             data_min: null,
@@ -111,9 +126,9 @@
           retrieve_data() {
             this.loading = true;
             fetch(
-              "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?" +
+              this.merchant_link +
                 "merchant=" +
-                this.selected_merchant +
+                this.merchant +
                 "&date_min=" +
                 this.data_min +
                 "&date_max=" +
@@ -137,7 +152,7 @@
                   // get the row's data
                   for (const [index, value] of Object.entries(row)) {
                     if (index == "ordine_marketplace") {
-                      csvFileData += value.replace('#','') + ";";
+                      csvFileData += value.replace("#", "") + ";";
                     } else {
                       csvFileData += value + ";";
                     }
@@ -150,7 +165,7 @@
                   "data:text/csv;charset=utf-8," + encodeURI(csvFileData);
                 hiddenElement.target = "_blank";
                 // provide the name for the CSV file to be downloaded
-                hiddenElement.download = this.selected_merchant + ".csv";
+                hiddenElement.download = this.merchant + ".csv";
                 hiddenElement.click();
                 this.loading = false;
               })
@@ -160,7 +175,14 @@
               });
           },
         },
-        computed: {},
+        computed: {
+          merchant() {
+            return this.merchants[this.selected_merchant].value;
+          },
+          merchant_link() {
+            return this.merchants[this.selected_merchant].link;
+          },
+        },
         beforeMount() {},
       };
 
