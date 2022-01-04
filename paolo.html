@@ -53,7 +53,7 @@
                 <main>
                 <form action="" method="get" @submit.prevent="retrieve_data()">
                     <div class="form-floating my-3">
-                      <select class="form-select" id="merchant" v-model="selected_merchant">
+                      <select class="form-select" id="merchant" v-model="selected_merchant" required>
                         <option selected disabled></option>
                         <option
                         v-for="(merchant, key) in merchants"
@@ -84,6 +84,9 @@
                   <div class="d-flex align-items-center" v-if="loading">
                     <strong>Loading...</strong>
                     <div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>
+                  </div>
+                  <div class="alert alert-danger" role="alert" v-if="error_message">
+                    {{ error_message }}
                   </div>
                 </main>
                 <footer class="pt-5 my-5 text-muted border-top">
@@ -120,11 +123,15 @@
             data_max: null,
             retrieved_orders_data: null,
             loading: false,
+            error_message: null,
+            timeout_id: null,
           };
         },
         methods: {
           retrieve_data() {
             this.loading = true;
+            clearTimeout(this.timeout_id);
+            this.error_message = null;
             fetch(
               this.merchant_link +
                 "merchant=" +
@@ -170,8 +177,11 @@
                 this.loading = false;
               })
               .catch((error) => {
-                console.log("error", error);
+                this.error_message = "Non risultano ordini per la tua ricerca.";
                 this.loading = false;
+                this.timeout_id = setTimeout(() => {
+                  this.error_message = null;
+                }, 3000);
               });
           },
         },
