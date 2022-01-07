@@ -147,7 +147,7 @@
           retrieve_data() {
             // start the loading
             this.loading = true;
-            // get come data to not be reactive with vue
+            // get some data to not be reactive with vue
             let merchant = this.merchant;
             let data_min = this.data_min;
             let data_max = this.data_max;
@@ -200,11 +200,11 @@
                 hiddenElement.target = "_blank";
                 // provide the name for the CSV file to be downloaded
                 hiddenElement.download =
-                  this.merchant +
+                  merchant +
                   " - dal " +
-                  this.data_min +
+                  data_min +
                   " al " +
-                  this.data_max +
+                  data_max +
                   ".csv";
                 hiddenElement.click();
                 // end the loading
