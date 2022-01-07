@@ -98,29 +98,34 @@
           return {
             merchants: [
               {
-                name: "Etape",
+                name: "Etape - Shopify",
                 value: "etape",
                 link: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
               },
               {
-                name: "Francavilla",
+                name: "Francavilla - Shopify",
                 value: "francavilla",
                 link: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
               },
               {
-                name: "Old England",
+                name: "Old England - Shopify",
                 value: "oldengland",
                 link: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
               },
               {
-                name: "Sellmasters",
+                name: "Sellmasters - Shopify",
                 value: "sellmasters",
                 link: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
               },
               {
-                name: "Studioarch",
+                name: "Studioarch - Prestashop",
                 value: "studioarch",
                 link: "../sellmasters_script_api_cms/studioarch/retrieve_orders_prestashop.php?",
+              },
+              {
+                name: "Maracana - Prestashop",
+                value: "maracana",
+                link: "../sellmasters_script_api_cms/maracana/retrieve_orders_prestashop.php?",
               },
             ],
             selected_merchant: null,
@@ -177,7 +182,13 @@
                   "data:text/csv;charset=utf-8," + encodeURI(csvFileData);
                 hiddenElement.target = "_blank";
                 // provide the name for the CSV file to be downloaded
-                hiddenElement.download = this.merchant + ".csv";
+                hiddenElement.download =
+                  this.merchant +
+                  " - dal " +
+                  this.data_min +
+                  " al " +
+                  this.data_max +
+                  ".csv";
                 hiddenElement.click();
                 this.loading = false;
               })
