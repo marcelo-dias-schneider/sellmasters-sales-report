@@ -127,6 +127,11 @@
                 value: "maracana",
                 link: "../sellmasters_script_api_cms/maracana/retrieve_orders_prestashop.php?",
               },
+              {
+                name: "Divesamente Enoteca - WooCommerce",
+                value: "maracana",
+                link: "../sellmasters_script_api_cms/maracana/retrieve_orders_woocommerce.php?",
+              },
             ],
             selected_merchant: null,
             data_min: null,
@@ -193,7 +198,7 @@
                 this.loading = false;
               })
               .catch((error) => {
-                this.error_message = "Non risultano ordini per la tua ricerca.";
+                this.error_message = "Nella tua ricerca non risulta ordini.";
                 this.loading = false;
                 this.timeout_id = setTimeout(() => {
                   this.error_message = null;
