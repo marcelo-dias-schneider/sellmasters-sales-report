@@ -146,6 +146,7 @@
         methods: {
           retrieve_data() {
             this.loading = true;
+            let merchant = this.merchant;
             clearTimeout(this.timeout_id);
             this.error_message = null;
             fetch(
@@ -174,7 +175,7 @@
                   }
                   // get the row's data
                   for (const [index, value] of Object.entries(row)) {
-                    if (index == "ordine_marketplace") {
+                    if (index == "ordine_marketplace" && merchant == "francavilla") {
                       csvFileData += value.replace("#", "") + ";";
                     } else {
                       csvFileData += value + ";";
