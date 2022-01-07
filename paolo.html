@@ -145,10 +145,17 @@
         },
         methods: {
           retrieve_data() {
+            // start the loading
             this.loading = true;
+            // get come data to not be reactive with vue
             let merchant = this.merchant;
+            let data_min = this.data_min;
+            let data_max = this.data_max;
+            // stop the last time out
             clearTimeout(this.timeout_id);
+            // make erroer message disappear
             this.error_message = null;
+            // retrieve the orders data
             fetch(
               this.merchant_link +
                 "merchant=" +
@@ -175,7 +182,10 @@
                   }
                   // get the row's data
                   for (const [index, value] of Object.entries(row)) {
-                    if (index == "ordine_marketplace" && merchant == "francavilla") {
+                    if (
+                      index == "ordine_marketplace" &&
+                      merchant == "francavilla"
+                    ) {
                       csvFileData += value.replace("#", "") + ";";
                     } else {
                       csvFileData += value + ";";
@@ -197,11 +207,15 @@
                   this.data_max +
                   ".csv";
                 hiddenElement.click();
+                // end the loading
                 this.loading = false;
               })
               .catch((error) => {
+                // report an error
                 this.error_message = "Nella tua ricerca non risulta ordini.";
+                // end the loading
                 this.loading = false;
+                // set a time all to disappear the error message
                 this.timeout_id = setTimeout(() => {
                   this.error_message = null;
                 }, 10000);
@@ -209,7 +223,7 @@
           },
           close_message() {
             this.error_message = null;
-          }
+          },
         },
         computed: {
           merchant() {
