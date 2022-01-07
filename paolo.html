@@ -54,21 +54,24 @@
                 <form action="" method="get" @submit.prevent="retrieve_data()">
                     <div class="form-floating my-3">
                       <select class="form-select" id="merchant" v-model="selected_merchant" required>
-                        <option selected disabled></option>
-                        <option
-                        v-for="(merchant, key) in merchants"
-                        :key="key"
-                        :value="key"
-                      >
-                          {{merchant.name}}
-                        </option>
-
+                        <optgroup 
+                          v-for="(ecommerce, ecommerce_key) in ecommerces"
+                          :label="ecommerce.name"
+                        >
+                          <option
+                            v-for="(merchant, merchant_key) in ecommerce.merchants"
+                            :key="key"
+                            :value="ecommerce_key + '-' + merchant_key"
+                          >
+                            {{merchant.name}}
+                          </option>
+                        </optgroup>
                       </select>
                       <label for="merchant">Seleziona un cliente</label>
                     </div>
 
                     <div class="form-floating mb-3">
-                      <input type="date" class="form-control" id="date_min" v-model="data_min">
+                      <input type="date" class="form-control" id="date_min" v-model="data_min" required>
                       <label for="date_min">Data inizio</label>
                     </div>
 
@@ -97,43 +100,58 @@
               `,
         data() {
           return {
-            merchants: [
-              {
-                name: "Etape - Shopify",
-                value: "etape",
-                link: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+            ecommerces: {
+              shopify: {
+                name: "Shopify",
+                merchants: [
+                  {
+                    name: "Etape",
+                    value: "etape",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                  {
+                    name: "Francavilla",
+                    value: "francavilla",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                  {
+                    name: "Old England",
+                    value: "oldengland",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                  {
+                    name: "Sellmasters",
+                    value: "sellmasters",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                ],
               },
-              {
-                name: "Francavilla - Shopify",
-                value: "francavilla",
-                link: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+              prestashop: {
+                name: "Presta Shop",
+                merchants: [
+                  {
+                    name: "Studioarch",
+                    value: "studioarch",
+                    uri: "../sellmasters_script_api_cms/studioarch/retrieve_orders_prestashop.php?",
+                  },
+                  {
+                    name: "Maracana",
+                    value: "maracana",
+                    uri: "../sellmasters_script_api_cms/maracana/retrieve_orders_prestashop.php?",
+                  },
+                ],
               },
-              {
-                name: "Old England - Shopify",
-                value: "oldengland",
-                link: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+              woocommerce: {
+                name: "Woo Commerce",
+                merchants: [
+                  {
+                    name: "Diversamente Enoteca - WooCommerce",
+                    value: "diversamente_enoteca",
+                    uri: "../sellmasters_script_api_cms/diversamente_enoteca/retrieve_orders_woocommerce.php?",
+                  },
+                ],
               },
-              {
-                name: "Sellmasters - Shopify",
-                value: "sellmasters",
-                link: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
-              },
-              {
-                name: "Studioarch - Prestashop",
-                value: "studioarch",
-                link: "../sellmasters_script_api_cms/studioarch/retrieve_orders_prestashop.php?",
-              },
-              {
-                name: "Maracana - Prestashop",
-                value: "maracana",
-                link: "../sellmasters_script_api_cms/maracana/retrieve_orders_prestashop.php?",
-              },
-              {
-                name: "Diversamente Enoteca - WooCommerce",
-                value: "diversamente_enoteca",
-                link: "../sellmasters_script_api_cms/diversamente_enoteca/retrieve_orders_woocommerce.php?",
-              },
-            ],
+            },
             selected_merchant: null,
             data_min: null,
             data_max: null,
@@ -200,12 +218,7 @@
                 hiddenElement.target = "_blank";
                 // provide the name for the CSV file to be downloaded
                 hiddenElement.download =
-                  merchant +
-                  " - dal " +
-                  data_min +
-                  " al " +
-                  data_max +
-                  ".csv";
+                  merchant + " - dal " + data_min + " al " + data_max + ".csv";
                 hiddenElement.click();
                 // end the loading
                 this.loading = false;
@@ -227,10 +240,16 @@
         },
         computed: {
           merchant() {
-            return this.merchants[this.selected_merchant].value;
+            let ecommerce = this.selected_merchant.split("-")[0];
+            let merchant = this.selected_merchant.split("-")[1];
+
+            return this.ecommerces[ecommerce].merchants[merchant].value;
           },
           merchant_link() {
-            return this.merchants[this.selected_merchant].link;
+            let ecommerce = this.selected_merchant.split("-")[0];
+            let merchant = this.selected_merchant.split("-")[1];
+
+            return this.ecommerces[ecommerce].merchants[merchant].uri;
           },
         },
         beforeMount() {},
