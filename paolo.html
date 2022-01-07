@@ -85,8 +85,9 @@
                     <strong>Loading...</strong>
                     <div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>
                   </div>
-                  <div class="alert alert-danger" role="alert" v-if="error_message">
+                  <div class="alert alert-danger alert-dismissible" role="alert" v-if="error_message">
                     {{ error_message }}
+                    <button type="button" class="btn-close" @click="close_message()"></button>
                   </div>
                 </main>
                 <footer class="pt-5 my-5 text-muted border-top">
@@ -202,9 +203,12 @@
                 this.loading = false;
                 this.timeout_id = setTimeout(() => {
                   this.error_message = null;
-                }, 3000);
+                }, 10000);
               });
           },
+          close_message() {
+            this.error_message = null;
+          }
         },
         computed: {
           merchant() {
