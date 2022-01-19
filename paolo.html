@@ -56,11 +56,12 @@
                       <select class="form-select" id="merchant" v-model="selected_merchant" required>
                         <optgroup 
                           v-for="(ecommerce, ecommerce_key) in ecommerces"
+                          :key="ecommerce_key"
                           :label="ecommerce.name"
                         >
                           <option
                             v-for="(merchant, merchant_key) in ecommerce.merchants"
-                            :key="key"
+                            :key="merchant_key"
                             :value="ecommerce_key + '-' + merchant_key"
                           >
                             {{merchant.name}}
@@ -202,7 +203,7 @@
                   for (const [index, value] of Object.entries(row)) {
                     if (
                       index == "ordine_marketplace" &&
-                      merchant == "francavilla"
+                      (merchant == "francavilla" || merchant == "francavilla")
                     ) {
                       csvFileData += value.replace("#", "") + ";";
                     } else {
