@@ -143,8 +143,6 @@
             display_order: ["Oggi", "Ieri", "Sett. attuale", "Sett. scorsa"],
             showing_range: 0,
             report_data: null,
-            sales_total: null,
-            // orders_total: null,
             loading: true,
             timeoutId: null,
           };
@@ -198,10 +196,6 @@
                   report_data[key].index = key + 1;
                 });
                 this.report_data = report_data;
-                // sum the sales_total
-                this.sales_total = result
-                  .map((client) => Number(client.totale_ordine))
-                  .reduce((prev, next) => prev + next);
                 this.loading = false;
               })
               .catch((error) => {
@@ -301,9 +295,18 @@
             return report_data_sliced;
           },
           orders_total() {
-            return this.report_data
-              .map((client) => Number(client.quantita))
-              .reduce((prev, next) => prev + next);
+            if (this.report_data != null)
+              return this.report_data
+                .map((client) => Number(client.quantita))
+                .reduce((prev, next) => prev + next);
+            if (!this.report_data) return null;
+          },
+          sales_total() {
+            if (this.report_data != null)
+              return this.report_data
+                .map((client) => Number(client.totale_ordine))
+                .reduce((prev, next) => prev + next);
+            if (!this.report_data) return null;
           },
         },
         beforeMount() {
