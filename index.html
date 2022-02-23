@@ -111,6 +111,7 @@
                           <tr>
                             <th scope="col">#</th>
                             <th scope="col">Cliente</th>
+                            <th scope="col">Marketplace</th>
                             <th scope="col">Quantità</th>
                             <th class="text-end" scope="col">Importo</th>
                           </tr>
@@ -119,6 +120,7 @@
                           <tr v-for="(cliente, key) in array_of_data" :key="key">
                             <th scope="row">{{ cliente.index }}</th>
                             <td>{{ cliente.nome }}</td>
+                            <td>{{ cliente.marketplace }}</td>
                             <td>{{ cliente.quantita }}</td>
                             <td class="text-end">{{ Number(cliente.totale_ordine).toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}</td>
                           </tr>
@@ -142,7 +144,7 @@
             showing_range: 0,
             report_data: null,
             sales_total: null,
-            orders_total: null,
+            // orders_total: null,
             loading: true,
             timeoutId: null,
           };
@@ -200,11 +202,6 @@
                 this.sales_total = result
                   .map((client) => Number(client.totale_ordine))
                   .reduce((prev, next) => prev + next);
-                // sum the orders_total
-                this.orders_total = result
-                  .map((client) => Number(client.quantita))
-                  .reduce((prev, next) => prev + next);
-                // stop the loading indicator
                 this.loading = false;
               })
               .catch((error) => {
@@ -213,10 +210,10 @@
                 this.loading = false;
               });
           },
-          manage_showing_data() { 
+          manage_showing_data() {
             // get the range of date to retrieve the report data
             let date = this.ranges_date[this.showing_range];
-            // get the ref of range 
+            // get the ref of range
             this.report_ref_data = this.display_order[this.showing_range];
             // get start date
             this.start_date = `${date[0].getFullYear()}-${
@@ -250,10 +247,10 @@
         computed: {
           // show the current range
           report_rage() {
-            // return a sigle data if start_date and end_date is the same 
+            // return a sigle data if start_date and end_date is the same
             if (this.start_date == this.end_date)
-            return `Data: ${this.start_date}`;
-            // return the range data 
+              return `Data: ${this.start_date}`;
+            // return the range data
             return `Dal ${this.start_date} al ${this.end_date}`;
           },
           report_data_sliced() {
@@ -282,7 +279,7 @@
                   quntity_to_slice,
                   quntity_to_slice * 2
                 );
-              // check if can be displayed in 3 columns
+                // check if can be displayed in 3 columns
               } else {
                 report_data_sliced.one = this.report_data.slice(
                   0,
@@ -302,6 +299,11 @@
               report_data_sliced.one = this.report_data;
             }
             return report_data_sliced;
+          },
+          orders_total() {
+            return this.report_data
+              .map((client) => Number(client.quantita))
+              .reduce((prev, next) => prev + next);
           },
         },
         beforeMount() {
