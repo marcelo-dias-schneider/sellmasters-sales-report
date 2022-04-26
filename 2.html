@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sellmasters - Riepilogo delle vendite</title>
+
+    <link rel="icon" type="image/x-icon" href="./img/favicon/favicon.ico">
+
+    <!-- vue js -->
+    <script src="https://unpkg.com/vue@next"></script>
+
+    <!-- Bootstrap 5 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+
+    <style>
+      .scrollmenu {
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .scrollmenu a {
+        display: inline-block;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <script>
+      const app = {
+        /*html*/
+        template: `
+          <main class="main" id="top">
+            <section>
+              <div class="card p-1">
+                <div class="card-header py-0">
+                  <div>
+                  <h4 class="card-title text-primary text-center my-2">{{ title }}</h4>
+                  </div>
+                  <div class="d-flex d-xl-none scrollmenu">
+                    <a class="my-1 rounded p-2 bg-primary text-white" v-if="sales_total">
+                      Ordini: {{ orders_total }}
+                    </a>
+                    <a class="m-1 rounded p-2 bg-primary text-white" v-if="sales_total">
+                      Totale: {{ sales_total.toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}
+                    </a>
+                    <a class="my-1 rounded p-2 bg-primary text-white" v-if="sales_total">
+                      {{ report_rage }} 
+                    </a>
+                  </div>
+                  <div class="d-flex scrollmenu my-0">
+                    <a 
+                      class="rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0"
+                      v-if="sales_total"
+                    >
+                      Totale di ordini: {{ orders_total }}
+                    </a>
+                    <a 
+                      class="rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0"
+                      v-if="sales_total"
+                    >
+                      Totale di vendita: {{ 
+                        sales_total.toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) 
+                      }}
+                    </a>
+                    <a 
+                      class="rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0" 
+                      v-if="sales_total"
+                    >{{ report_rage }}
+                    </a>
+                    <a 
+                      class="rounded-top p-2 mx-1 d-none d-xl-block my-0 flex-grow-1"
+                    ></a>
+                    <a 
+                      class="rounded-top p-2 mx-1"
+                      v-for="(options, key) in display_order"
+                      :class="options == report_ref_data ? 'active bg-primary text-white' : 'bg-secondary text-white'"
+                      @click="set_range(key)"
+                    >
+                      {{ options }}
+                    </a>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="d-flex justify-content-center" v-if="loading">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
+                    <div
+                      :class="'col-' + 12 / Object.keys(report_data_sliced).length "
+                      v-if="!loading"
+                      v-for="(array_of_data, key) in report_data_sliced" 
+                      :key="key"
+                    >
+                      <table class="table table-striped ">
+                        <thead>
+                          <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Marketplace</th>
+                            <th scope="col">Quantità</th>
+                            <th class="text-end" scope="col">Importo</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(cliente, key) in array_of_data" :key="key">
+                            <th scope="row">{{ cliente.index }}</th>
+                            <td>{{ cliente.nome }}</td>
+                            <td>{{ cliente.marketplace }}</td>
+                            <td>{{ cliente.quantita * 2 }}</td>
+                            <td class="text-end">{{ Number(cliente.totale_ordine * 2).toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </main>
+        `,
+        data() {
+          return {
+            title: "Riepilogo di vendita Sellmasters",
+            report_ref_data: null,
+            start_date: null,
+            end_date: null,
+            ranges_date: {},
+            display_order: ["Oggi", "Ieri", "Sett. attuale", "Sett. scorsa"],
+            showing_range: 0,
+            report_data: null,
+            loading: true,
+            timeoutId: null,
+          };
+        },
+        methods: {
+          // prapade the dates to make the requests to retrieve the export data
+          prepare_range_date() {
+            // create an day in milliseconds
+            let day = 24 * 60 * 60 * 1000;
+            // get today date
+            let today = new Date();
+            // get the today week reference (0 monday - 6 saturday | if 0 sunday set as 7 )
+            let week_ref_day = today.getUTCDay() == 0 ? 7 : today.getUTCDay();
+            // get yesterday date
+            let yesterday = new Date(Date.now() - day);
+            // get the firt day of this week
+            let week_start = new Date(Date.now() - (week_ref_day - 1) * day);
+            // get the firt day of last week
+            let last_week_start = new Date(
+              Date.now() - (week_ref_day + 6) * day
+            );
+            // get the last day of last week
+            let end_week_start = new Date(Date.now() - week_ref_day * day);
+            // setup the range of dates to switch between
+            this.ranges_date = [
+              [today, today],
+              [yesterday, yesterday],
+              [week_start, today],
+              [last_week_start, end_week_start],
+            ];
+            // call the manage_showing_data method after the ranges_date is calculated
+            this.manage_showing_data();
+          },
+          retrive_report_data() {
+            // start the loading indicator
+            this.loading = true;
+            // retrieve the report data
+            fetch(
+              `./sales_controller.php?data_inizio=${this.start_date}&data_fine=${this.end_date}`,
+              { method: "GET" }
+            )
+              .then((response) => response.json())
+              .then((result) => {
+                let helper = {};
+                let t = result.reduce((data_new, data_old) => {
+                  let key = data_old.nome + "-" + data_old.marketplace;
+
+                  if (!helper[key]) {
+                    helper[key] = Object.assign({}, data_old); // create a copy of o
+                    data_new.push(helper[key]);
+                  } else {
+                    helper[key].quantita += data_old.quantita;
+                    helper[key].totale_ordine += data_old.totale_ordine;
+                  }
+
+                  return data_new;
+                }, []);
+
+                // order the report by "totale_ordine"
+                let report_data = t.sort((a, b) => {
+                  return Number(b.totale_ordine) - Number(a.totale_ordine);
+                });
+                // create the index of each client
+                let index = 0;
+                report_data.forEach((column, key) => {
+                  report_data[key].index = key + 1;
+                });
+                this.report_data = report_data;
+                this.loading = false;
+              })
+              .catch((error) => {
+                console.log("error", error);
+                // stop the loading indicator
+                this.loading = false;
+              });
+          },
+          manage_showing_data() {
+            // get the range of date to retrieve the report data
+            let date = this.ranges_date[this.showing_range];
+            // get the ref of range
+            this.report_ref_data = this.display_order[this.showing_range];
+            // get start date
+            this.start_date = `${date[0].getFullYear()}-${
+              date[0].getMonth() + 1
+            }-${date[0].getDate()}`;
+            // get end date
+            this.end_date = `${date[1].getFullYear()}-${
+              date[1].getMonth() + 1
+            }-${date[1].getDate()}`;
+            // switch to next range
+            // check if it's the last range to go back to begianing
+            this.showing_range == Object.keys(this.ranges_date).length - 1
+              ? (this.showing_range = 0)
+              : (this.showing_range += 1);
+            // retrieve the report data
+            this.retrive_report_data();
+            // unset the previous timeout before start the next one
+            clearTimeout(this.timeoutId);
+            // get the timeout id and start it to call a next range after x miliseconds time
+            this.timeoutId = setTimeout(() => {
+              this.manage_showing_data();
+            }, 30000);
+          },
+          // set the range when a range link is clicked
+          set_range(range) {
+            this.showing_range = range;
+            // call the method to update the data
+            this.manage_showing_data();
+          },
+        },
+        computed: {
+          // show the current range
+          report_rage() {
+            // return a sigle data if start_date and end_date is the same
+            if (this.start_date == this.end_date)
+              return `Data: ${this.start_date}`;
+            // return the range data
+            return `Dal ${this.start_date} al ${this.end_date}`;
+          },
+          report_data_sliced() {
+            // create a variable to hold the report data manipulated
+            let report_data_sliced = {};
+            // check the window width to slice the report data
+            if (window.innerWidth >= 1200) {
+              // calculate how many table rows can be display
+              let quntity_to_slice = parseInt((window.innerHeight - 220) / 40);
+              // if all rows can be displayed in 3 columns without scrollbar, slice by 3
+              if (quntity_to_slice < Object.keys(this.report_data).length / 3) {
+                quntity_to_slice = parseInt(
+                  Object.keys(this.report_data).length / 3 + 1
+                );
+              }
+              // check if can be displayed in 2 columns
+              if (
+                Object.keys(this.report_data).length <=
+                quntity_to_slice * 2
+              ) {
+                report_data_sliced.one = this.report_data.slice(
+                  0,
+                  quntity_to_slice
+                );
+                report_data_sliced.two = this.report_data.slice(
+                  quntity_to_slice,
+                  quntity_to_slice * 2
+                );
+                // check if can be displayed in 3 columns
+              } else {
+                report_data_sliced.one = this.report_data.slice(
+                  0,
+                  quntity_to_slice
+                );
+                report_data_sliced.two = this.report_data.slice(
+                  quntity_to_slice,
+                  quntity_to_slice * 2
+                );
+                report_data_sliced.three = this.report_data.slice(
+                  quntity_to_slice * 2,
+                  quntity_to_slice * 3
+                );
+              }
+            } else {
+              // display data in one column
+              report_data_sliced.one = this.report_data;
+            }
+            return report_data_sliced;
+          },
+          orders_total() {
+            if (this.report_data != null)
+              return this.report_data
+                .map((client) => Number(client.quantita))
+                .reduce((prev, next) => prev + next);
+            if (!this.report_data) return null;
+          },
+          sales_total() {
+            if (this.report_data != null)
+              return this.report_data
+                .map((client) => Number(client.totale_ordine))
+                .reduce((prev, next) => prev + next);
+            if (!this.report_data) return null;
+          },
+        },
+        beforeMount() {
+          // start the method before the Vue js app get mounted
+          this.prepare_range_date();
+        },
+      };
+
+      // instance of Vue Js
+      Vue.createApp(app).mount("#app");
+    </script>
+  </body>
+</html>
