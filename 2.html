@@ -58,33 +58,33 @@
                       Totale: {{ sales_total.toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}
                     </a>
                     <a class="my-1 rounded p-2 bg-primary text-white" v-if="sales_total">
-                      {{ report_rage }} 
+                      {{ report_rage }}
                     </a>
                   </div>
                   <div class="d-flex scrollmenu my-0">
-                    <a 
+                    <a
                       class="rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0"
                       v-if="sales_total"
                     >
                       Totale di ordini: {{ orders_total }}
                     </a>
-                    <a 
+                    <a
                       class="rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0"
                       v-if="sales_total"
                     >
-                      Totale di vendita: {{ 
-                        sales_total.toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) 
+                      Totale di vendita: {{
+                        sales_total.toLocaleString('it-IT', {style: 'currency', currency: 'EUR'})
                       }}
                     </a>
-                    <a 
-                      class="rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0" 
+                    <a
+                      class="rounded-top p-2 mx-1 bg-primary text-white d-none d-xl-block my-0"
                       v-if="sales_total"
                     >{{ report_rage }}
                     </a>
-                    <a 
+                    <a
                       class="rounded-top p-2 mx-1 d-none d-xl-block my-0 flex-grow-1"
                     ></a>
-                    <a 
+                    <a
                       class="rounded-top p-2 mx-1"
                       v-for="(options, key) in display_order"
                       :class="options == report_ref_data ? 'active bg-primary text-white' : 'bg-secondary text-white'"
@@ -104,7 +104,7 @@
                     <div
                       :class="'col-' + 12 / Object.keys(report_data_sliced).length "
                       v-if="!loading"
-                      v-for="(array_of_data, key) in report_data_sliced" 
+                      v-for="(array_of_data, key) in report_data_sliced"
                       :key="key"
                     >
                       <table class="table table-striped ">
@@ -210,14 +210,10 @@
                 let index = 0;
                 report_data.forEach((column, key) => {
                   report_data[key].index = key + 1;
-                  report_data[key].quantita =
-                    key < 5
-                      ? report_data[key].quantita * 2
-                      : report_data[key].quantita;
-                  report_data[key].totale_ordine =
-                    key < 5
-                      ? report_data[key].totale_ordine * 2
-                      : report_data[key].totale_ordine;
+                  if (key < 5 || report_data[key].nome == "Mondotop") {
+                    report_data[key].quantita = report_data[key].quantita * 2;
+                    report_data[key].totale_ordine = report_data[key].totale_ordine * 2;
+                  }
                 });
                 this.report_data = report_data;
                 this.loading = false;
