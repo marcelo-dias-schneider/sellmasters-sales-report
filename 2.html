@@ -104,8 +104,8 @@
                     <div
                       :class="'col-' + 12 / Object.keys(report_data_sliced).length "
                       v-if="!loading"
-                      v-for="(array_of_data, key) in report_data_sliced" 
-                      :key="key"
+                      v-for="(array_of_data, table_key) in report_data_sliced" 
+                      :key="table_key"
                     >
                       <table class="table table-striped ">
                         <thead>
@@ -118,12 +118,30 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <tr v-for="(cliente, key) in array_of_data" :key="key">
+                          <tr v-for="(cliente, data_key) in array_of_data" :key="data_key">
                             <th scope="row">{{ cliente.index }}</th>
                             <td>{{ cliente.nome }}</td>
                             <td>{{ cliente.marketplace }}</td>
-                            <td>{{ cliente.quantita * 2 }}</td>
-                            <td class="text-end">{{ Number(cliente.totale_ordine * 2).toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}</td>
+                            
+                            <td
+                              v-if="table_key == 'one' && data_key < 5"
+                            >{{ cliente.quantita * 2 }}</td>
+                            <td
+                              v-else
+                            >
+                              {{ cliente.quantita }}
+                            </td>
+
+                            <td
+                              class="text-end"
+                              v-if="table_key == 'one' && data_key < 5"
+                            >
+                              {{ Number(cliente.totale_ordine * 2).toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}
+                            </td>
+                            <td
+                              class="text-end"
+                              v-else>{{ Number(cliente.totale_ordine ).toLocaleString('it-IT', {style: 'currency', currency: 'EUR'}) }}
+                            </td>
                           </tr>
                         </tbody>
                       </table>
