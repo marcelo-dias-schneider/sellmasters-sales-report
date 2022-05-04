@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sellmasters - Riepilogo delle vendite</title>
 
-    <link rel="icon" type="image/x-icon" href="./img/favicon/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="./img/favicon/favicon.ico" />
 
     <!-- vue js -->
     <script src="https://unpkg.com/vue@next"></script>
@@ -182,7 +182,7 @@
             this.loading = true;
             // retrieve the report data
             fetch(
-              `./sales_controller.php?data_inizio=${this.start_date}&data_fine=${this.end_date}`,
+              `./sales_controller.php?data_inizio=${this.start_date}&data_fine=${this.end_date}&range_date=${this.translate_range_date}`,
               { method: "GET" }
             )
               .then((response) => response.json())
@@ -323,6 +323,10 @@
                 .map((client) => Number(client.totale_ordine))
                 .reduce((prev, next) => prev + next);
             if (!this.report_data) return null;
+          },
+          translate_range_date() {
+            const range = ["last_week", "today", "yesterday", "current_week"];
+            return range[this.showing_range];
           },
         },
         beforeMount() {
