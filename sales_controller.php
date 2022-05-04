@@ -27,7 +27,7 @@ $response_arny = json_decode($response_arny, true);
 $curl = curl_init();
 
 $options = array(
-  CURLOPT_URL => 'http://localhost/sellmasters/sellmasters_script_api_cms/ecommerce_resume/model.php',
+  CURLOPT_URL => 'http://sellmasters.marceloschneider.dev.br/sellmasters_script_api_cms/ecommerce_resume/model.php',
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => '',
   CURLOPT_MAXREDIRS => 10,
