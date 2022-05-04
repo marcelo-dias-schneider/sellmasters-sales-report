@@ -34,7 +34,7 @@ $options = array(
   CURLOPT_TIMEOUT => 0,
   CURLOPT_FOLLOWLOCATION => true,
   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => 'GET',
+  CURLOPT_CUSTOMREQUEST => 'POST',
   CURLOPT_POSTFIELDS => '{
     "action": "retrieve_resume_data",
     "date_range": "' . $range_date . '"
