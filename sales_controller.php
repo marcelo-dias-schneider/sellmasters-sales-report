@@ -54,6 +54,9 @@ curl_close($curl);
 $response_marc = json_decode($response_marc, true);
 
 $response_marc_formated = [];
+if ($response_marc == null) {
+  $response_marc = [];
+}
 foreach ($response_marc as $value) {
   $response_marc_formated[] = [
     "quantita" => $value['quantity'],
