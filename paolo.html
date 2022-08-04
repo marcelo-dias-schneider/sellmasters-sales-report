@@ -125,6 +125,11 @@
                     value: "sellmasters",
                     uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
                   },
+                  {
+                    name: "Valery Calzature",
+                    value: "valery-calzature",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
                 ],
               },
               prestashop: {
@@ -203,7 +208,7 @@
                   for (const [index, value] of Object.entries(row)) {
                     if (
                       index == "ordine_marketplace" &&
-                      (merchant == "francavilla" || merchant == "oldengland")
+                      (merchant == "francavilla" || merchant == "oldengland" || merchant == "etape")
                     ) {
                       csvFileData += value.replace("#", "") + ";";
                     } else {
