@@ -206,14 +206,7 @@
                   }
                   // get the row's data
                   for (const [index, value] of Object.entries(row)) {
-                    if (
-                      index == "ordine_marketplace" &&
-                      (merchant == "francavilla" || merchant == "oldengland" || merchant == "etape")
-                    ) {
-                      csvFileData += value.replace("#", "") + ";";
-                    } else {
-                      csvFileData += value + ";";
-                    }
+                    csvFileData += value + ";";
                   }
                   csvFileData += "\n";
                 }
