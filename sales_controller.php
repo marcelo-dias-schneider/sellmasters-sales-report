@@ -23,6 +23,13 @@ curl_close($curl);
 
 $response_arny = json_decode($response_arny, true);
 
+// find the position of nome MasinoGioielli and unset it
+foreach ($response_arny as $key => $value) {
+  if ($value['nome'] == 'MasinoGioielli') {
+    unset($response_arny[$key]);
+  }
+}
+
 # Marc
 $curl = curl_init();
 
