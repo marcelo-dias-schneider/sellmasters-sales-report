@@ -372,35 +372,13 @@
                   .split("\n")
                   .slice(0, -1)
                   .sort((a, b) => {
-                    let a_data_acquisito = a.split(";")[3];
-                    // convert a_data_acquisito to date
-                    a_data_acquisito = new Date(
-                      a_data_acquisito.split("-")[0],
-                      a_data_acquisito.split("-")[1] - 1,
-                      a_data_acquisito.split("-")[2]
-                    );
-                    let b_data_acquisito = b.split(";")[3];
-                    // convert b_data_acquisito to date
-                    b_data_acquisito = new Date(
-                      b_data_acquisito.split("-")[0],
-                      b_data_acquisito.split("-")[1] - 1,
-                      b_data_acquisito.split("-")[2]
-                    );
-                    let a_ordine_marketplace = a.split(";")[4];
-                    let b_ordine_marketplace = b.split(";")[4];
-                    if (a_data_acquisito < b_data_acquisito) {
+                    let a_ordine_marketplace = a.split(";")[5];
+                    let b_ordine_marketplace = b.split(";")[5];
+                    if (a_ordine_marketplace < b_ordine_marketplace) {
                       return -1;
                     }
-                    if (a_data_acquisito > b_data_acquisito) {
+                    if (a_ordine_marketplace > b_ordine_marketplace) {
                       return 1;
-                    }
-                    if (a_data_acquisito == b_data_acquisito) {
-                      if (a_ordine_marketplace < b_ordine_marketplace) {
-                        return -1;
-                      }
-                      if (a_ordine_marketplace > b_ordine_marketplace) {
-                        return 1;
-                      }
                     }
                     return 0;
                   })
