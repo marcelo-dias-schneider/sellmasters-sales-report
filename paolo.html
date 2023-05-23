@@ -1,324 +1,443 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sellmasters - Riepilogo delle vendite</title>
+    <link rel="icon" type="image/x-icon" href="./img/favicon/favicon.ico" />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sellmasters - Riepilogo delle vendite</title>
-  <link rel="icon" type="image/x-icon" href="./img/favicon/favicon.ico" />
+    <!-- Vue.Js 3 -->
+    <!-- <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.min.js"></script>
 
+    <!-- Bootstrap 5 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+      crossorigin="anonymous"
+    ></script>
 
-  <!-- Vue.Js 3 -->
-  <!-- <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script> -->
-  <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.min.js"></script>
+    <style>
+      .scrollmenu {
+        overflow-x: auto;
+        white-space: nowrap;
+      }
 
-  <!-- Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
-    crossorigin="anonymous"></script>
+      .scrollmenu a {
+        display: inline-block;
+        text-decoration: none;
+      }
+    </style>
+  </head>
 
-  <style>
-    .scrollmenu {
-      overflow-x: auto;
-      white-space: nowrap;
-    }
+  <body>
+    <div id="app">
+      <div class="col-lg-8 mx-auto p-3 py-md-5">
+        <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
+          <p class="d-flex align-items-center text-dark text-decoration-none">
+            <img
+              src="img/sellmasters_logo.png"
+              alt="Sellmasters"
+              style="max-height: 40px"
+            />
+            <span class="fs-4 mx-1">Esportazione delle vendite</span>
+          </p>
+        </header>
 
-    .scrollmenu a {
-      display: inline-block;
-      text-decoration: none;
-    }
-  </style>
-</head>
+        <main>
+          <form action="" method="get" @submit.prevent="retrieve_data()">
+            <div class="form-floating my-3">
+              <select
+                class="form-select"
+                id="merchant"
+                v-model="selected_merchant"
+                required
+              >
+                <option
+                  v-for="(merchant, merchant_key) in merchants"
+                  :key="merchant_key"
+                  :value="merchant_key"
+                  :name="merchant_key"
+                >
+                  {{ merchant.name }} ({{ merchant.ecommerces.length }})
+                </option>
+              </select>
+              <label for="merchant">Seleziona un cliente</label>
+            </div>
+            <div class="form-floating my-3">
+              <select
+                class="form-select"
+                id="ecommerce"
+                v-if="selected_merchant != null"
+                v-model="selected_ecommerce"
+                required
+              >
+                <option
+                  v-for="(ecommerce, ecommerce_key) in merchants[selected_merchant].ecommerces"
+                  :key="ecommerce_key"
+                  :value="ecommerce_key"
+                  :name="ecommerce_key"
+                >
+                  {{ ecommerce.name }}
+                </option>
+              </select>
+              <label for="ecommerce">Seleziona un ecommerce</label>
+            </div>
 
-<body>
-  <div id="app"></div>
-  <script>
-    const app = {
-      /*html*/
-      template: `
-              <div class="col-lg-8 mx-auto p-3 py-md-5">
-                <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
-                  <p class="d-flex align-items-center text-dark text-decoration-none">
-                    <img src="img/sellmasters_logo.png" alt="Sellmasters" style="max-height: 40px">
-                    <span class="fs-4 mx-1">Esportazione delle vendite</span>
-                  </p>
-                </header>
+            <div class="form-floating mb-3">
+              <input
+                type="date"
+                class="form-control"
+                id="date_min"
+                v-model="data_min"
+                required
+              />
+              <label for="date_min">Data inizio</label>
+            </div>
 
-                <main>
-                <form action="" method="get" @submit.prevent="retrieve_data()">
-                    <div class="form-floating my-3">
-                      <select class="form-select" id="merchant" v-model="selected_merchant" required>
-                        <optgroup 
-                          v-for="(ecommerce, ecommerce_key) in ecommerces"
-                          :key="ecommerce_key"
-                          :label="ecommerce.name"
-                        >
-                          <option
-                            v-for="(merchant, merchant_key) in ecommerce.merchants"
-                            :key="merchant_key"
-                            :value="ecommerce_key + '-' + merchant_key"
-                          >
-                            {{merchant.name}}
-                          </option>
-                        </optgroup>
-                      </select>
-                      <label for="merchant">Seleziona un cliente</label>
-                    </div>
+            <div class="form-floating mb-3">
+              <input
+                type="date"
+                class="form-control"
+                id="date_max"
+                v-model="data_max"
+              />
+              <label for="date_min">Data fine</label>
+            </div>
 
-                    <div class="form-floating mb-3">
-                      <input type="date" class="form-control" id="date_min" v-model="data_min" required>
-                      <label for="date_min">Data inizio</label>
-                    </div>
-
-                    <div class="form-floating mb-3">
-                      <input type="date" class="form-control" id="date_max" v-model="data_max">
-                      <label for="date_min">Data fine</label>
-                    </div>
-
-                    <div class="mb-5">
-                      <input type="submit" class="btn btn-primary btn-lg px-4" value="Scarica file">
-                    </div>
-                  </form>
-                  <div class="d-flex align-items-center" v-if="loading">
-                    <strong>Loading...</strong>
-                    <div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>
-                  </div>
-                  <div class="alert alert-danger alert-dismissible" role="alert" v-if="error_message">
-                    {{ error_message }}
-                    <button type="button" class="btn-close" @click="close_message()"></button>
-                  </div>
-                </main>
-                <footer class="pt-5 my-5 text-muted border-top">
-                  Sellmasters &middot; &copy; 2022
-                </footer>
-              </div>
-              `,
-      data() {
-        return {
-          ecommerces: {
-            shopify: {
-              name: "Shopify",
-              merchants: [
-                {
-                  name: "Etape",
-                  value: "etape",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
-                },
-                {
-                  name: "Francavilla",
-                  value: "francavilla",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
-                },
-                {
-                  name: "Old England",
-                  value: "oldengland",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
-                },
-                {
-                  name: "Sellmasters",
-                  value: "sellmasters",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
-                },
-                {
-                  name: "Valery Calzature",
-                  value: "valery-calzature",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
-                },
-                {
-                  name: "Milledizemas",
-                  value: "milledizemas",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
-                },
-                {
-                  name: "Animalmania",
-                  value: "animalmania",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
-                },
-                {
-                  name: "Pandemonium",
-                  value: "pandemonium",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
-                },
-                {
-                  name: "Castellese",
-                  value: "castellese",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
-                },
-                {
-                  name: "Coolcultura",
-                  value: "coolcultura",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
-                },
-                {
-                  name: "Outlet Sanmichele",
-                  value: "outletsanmichele",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
-                },
-                {
-                  name: "Expance",
-                  value: "expancestore",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
-                },
-              ],
-            },
-            prestashop: {
-              name: "Presta Shop",
-              merchants: [
-                {
-                  name: "Studioarch",
-                  value: "studioarch",
-                  uri: "../sellmasters_script_api_cms/studioarch/retrieve_orders_prestashop.php?",
-                },
-                {
-                  name: "Maracana",
-                  value: "maracana",
-                  uri: "../sellmasters_script_api_cms/maracana/retrieve_orders_prestashop.php?",
-                },
-              ],
-            },
-            woocommerce: {
-              name: "Woo Commerce",
-              merchants: [
-                {
-                  name: "Diversamente Enoteca - WooCommerce",
-                  value: "diversamente_enoteca",
-                  uri: "../sellmasters_script_api_cms/diversamente_enoteca/retrieve_orders_woocommerce.php?",
-                },
-              ],
-            },
-            zalando: {
-              name: "Zalando",
-              merchants: [
-                {
-                  name: "Etape - Zalando",
-                  value: "zalando-etape",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_zalando.php?",
-                },
-                {
-                  name: "Alley33 - Zalando",
-                  value: "zalando-alley33",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_zalando.php?",
-                },
-                {
-                  name: "Maracana Zalando",
-                  value: "zalando-maracana",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_zalando.php?",
-                },
-                {
-                  name: "Famma - Zalando",
-                  value: "zalando-fama",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_zalando.php?",
-                },
-                {
-                  name: "Francavilla - Zalando",
-                  value: "zalando-francavilla",
-                  uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_zalando.php?",
-                },
-              ],
-            },
-          },
-          selected_merchant: null,
-          data_min: null,
-          data_max: null,
-          retrieved_orders_data: null,
-          loading: false,
-          error_message: null,
-          timeout_id: null,
-        };
-      },
-      methods: {
-        retrieve_data() {
-          // start the loading
-          this.loading = true;
-          // get some data to not be reactive with vue
-          let merchant = this.merchant;
-          let data_min = this.data_min;
-          let data_max = this.data_max;
-          // stop the last time out
-          clearTimeout(this.timeout_id);
-          // make erroer message disappear
-          this.error_message = null;
-          // retrieve the orders data
-          fetch(
-            this.merchant_link +
-            "merchant=" +
-            this.merchant +
-            "&date_min=" +
-            this.data_min +
-            "&date_max=" +
-            this.data_max +
-            "&format=paolo",
-            {
-              method: "GET",
-            }
-          )
-            .then((response) => response.json())
-            .then((result) => {
-              let csvFileData = "";
-              for (const [key, row] of Object.entries(result.data)) {
-                // set the csv header
-                if (key == 0) {
+            <div class="mb-5">
+              <input
+                type="submit"
+                class="btn btn-primary btn-lg px-4"
+                value="Scarica file"
+              />
+            </div>
+          </form>
+          <div class="d-flex align-items-center" v-if="loading">
+            <strong>Loading...</strong>
+            <div
+              class="spinner-border ms-auto"
+              role="status"
+              aria-hidden="true"
+            ></div>
+          </div>
+          <div
+            class="alert alert-danger alert-dismissible"
+            role="alert"
+            v-if="error_message"
+          >
+            {{ error_message }}
+            <button
+              type="button"
+              class="btn-close"
+              @click="close_message()"
+            ></button>
+          </div>
+        </main>
+        <footer class="pt-5 my-5 text-muted border-top">
+          Sellmasters &middot; &copy; 2022
+        </footer>
+      </div>
+    </div>
+    <script>
+      const app = {
+        data() {
+          return {
+            all_merchants: [
+              {
+                name: "Famma",
+                ecommerces: [
+                  {
+                    name: "Zalando",
+                    value: "zalando-fama",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_zalando.php?",
+                  },
+                ],
+              },
+              {
+                name: "Maracana",
+                ecommerces: [
+                  {
+                    name: "Presta Shop",
+                    value: "maracana",
+                    uri: "../sellmasters_script_api_cms/maracana/retrieve_orders_prestashop.php?",
+                  },
+                  {
+                    name: "Zalando",
+                    value: "zalando-maracana",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_zalando.php?",
+                  },
+                ],
+              },
+              {
+                name: "Studioarch",
+                ecommerces: [
+                  {
+                    name: "Presta Shop",
+                    value: "studioarch",
+                    uri: "../sellmasters_script_api_cms/studioarch/retrieve_orders_prestashop.php?",
+                  },
+                ],
+              },
+              {
+                name: "Etape",
+                ecommerces: [
+                  {
+                    name: "Shopify",
+                    value: "etape",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                  {
+                    name: "Zalando",
+                    value: "zalando-etape",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_zalando.php?",
+                  },
+                ],
+              },
+              {
+                name: "Francavilla",
+                ecommerces: [
+                  {
+                    name: "Shopify",
+                    value: "francavilla",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                  {
+                    name: "Zalando",
+                    value: "zalando-francavilla",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_zalando.php?",
+                  },
+                ],
+              },
+              {
+                name: "Old England",
+                ecommerces: [
+                  {
+                    name: "Shopify",
+                    value: "oldengland",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                ],
+              },
+              {
+                name: "Sellmasters",
+                ecommerces: [
+                  {
+                    name: "Shopify",
+                    value: "sellmasters",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                ],
+              },
+              {
+                name: "Valery Calzature",
+                ecommerces: [
+                  {
+                    name: "Shopify",
+                    value: "valery-calzature",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                ],
+              },
+              {
+                name: "Milledizemas",
+                ecommerces: [
+                  {
+                    name: "Shopify",
+                    value: "milledizemas",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                ],
+              },
+              {
+                name: "Animalmania",
+                ecommerces: [
+                  {
+                    name: "Shopify",
+                    value: "animalmania",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                ],
+              },
+              {
+                name: "Pandemonium",
+                ecommerces: [
+                  {
+                    name: "Shopify",
+                    value: "pandemonium",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                ],
+              },
+              {
+                name: "Castellese",
+                ecommerces: [
+                  {
+                    name: "Shopify",
+                    value: "castellese",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                ],
+              },
+              {
+                name: "Coolcultura",
+                ecommerces: [
+                  {
+                    name: "Shopify",
+                    value: "coolcultura",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                ],
+              },
+              {
+                name: "Outlet Sanmichele",
+                ecommerces: [
+                  {
+                    name: "Shopify",
+                    value: "outletsanmichele",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                ],
+              },
+              {
+                name: "Expance",
+                ecommerces: [
+                  {
+                    name: "Shopify",
+                    value: "expancestore",
+                    uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
+                  },
+                ],
+              },
+            ],
+            selected_merchant: null,
+            selected_ecommerce: null,
+            // create data_min as 1st of 1 month ago
+            data_min: new Date(
+              new Date().getFullYear(),
+              new Date().getMonth() - 1,
+              2
+            )
+              .toISOString()
+              .slice(0, 10),
+            // create data_max as today date
+            data_max: new Date().toISOString().slice(0, 10),
+            retrieved_orders_data: null,
+            loading: false,
+            error_message: null,
+            timeout_id: null,
+          };
+        },
+        methods: {
+          retrieve_data() {
+            // start the loading
+            this.loading = true;
+            // get some data to not be reactive with vue
+            let merchant = this.merchant;
+            let data_min = this.data_min;
+            let data_max = this.data_max;
+            // stop the last time out
+            clearTimeout(this.timeout_id);
+            // make erroer message disappear
+            this.error_message = null;
+            // retrieve the orders data
+            fetch(
+              this.merchant_link +
+                "merchant=" +
+                this.merchant +
+                "&date_min=" +
+                this.data_min +
+                "&date_max=" +
+                this.data_max +
+                "&format=paolo",
+              {
+                method: "GET",
+              }
+            )
+              .then((response) => response.json())
+              .then((result) => {
+                let csvFileData = "";
+                for (const [key, row] of Object.entries(result.data)) {
+                  // set the csv header
+                  if (key == 0) {
+                    for (const [index, value] of Object.entries(row)) {
+                      csvFileData += index + ";";
+                    }
+                    csvFileData += "\n";
+                  }
+                  // get the row's data
                   for (const [index, value] of Object.entries(row)) {
-                    csvFileData += index + ";";
+                    csvFileData += value + ";";
                   }
                   csvFileData += "\n";
                 }
-                // get the row's data
-                for (const [index, value] of Object.entries(row)) {
-                  csvFileData += value + ";";
-                }
-                csvFileData += "\n";
-              }
 
-              let hiddenElement = document.createElement("a");
-              hiddenElement.href =
-                "data:text/csv;charset=utf-8," + encodeURI(csvFileData);
-              hiddenElement.target = "_blank";
-              // provide the name for the CSV file to be downloaded
-              hiddenElement.download =
-                merchant + " - dal " + data_min + " al " + data_max + ".csv";
-              hiddenElement.click();
-              // end the loading
-              this.loading = false;
-            })
-            .catch((error) => {
-              // report an error
-              this.error_message = "Nella tua ricerca non risulta ordini.";
-              // end the loading
-              this.loading = false;
-              // set a time all to disappear the error message
-              this.timeout_id = setTimeout(() => {
-                this.error_message = null;
-              }, 10000);
-            });
+                let hiddenElement = document.createElement("a");
+                hiddenElement.href =
+                  "data:text/csv;charset=utf-8," + encodeURI(csvFileData);
+                hiddenElement.target = "_blank";
+                // provide the name for the CSV file to be downloaded
+                hiddenElement.download =
+                  merchant + " - dal " + data_min + " al " + data_max + ".csv";
+                hiddenElement.click();
+                // end the loading
+                this.loading = false;
+              })
+              .catch((error) => {
+                // report an error
+                this.error_message = "Nella tua ricerca non risulta ordini.";
+                // end the loading
+                this.loading = false;
+                // set a time all to disappear the error message
+                this.timeout_id = setTimeout(() => {
+                  this.error_message = null;
+                }, 10000);
+              });
+          },
+          close_message() {
+            this.error_message = null;
+          },
+          compareByName(a, b) {
+            const nameA = a.name.toUpperCase();
+            const nameB = b.name.toUpperCase();
+
+            if (nameA < nameB) {
+              return -1;
+            }
+            if (nameA > nameB) {
+              return 1;
+            }
+            return 0;
+          },
         },
-        close_message() {
-          this.error_message = null;
+        computed: {
+          // order the merchants by name
+          merchants() {
+            return this.all_merchants.sort(this.compareByName);
+          },
+          merchant() {
+            return this.merchants[this.selected_merchant].ecommerces[
+              this.selected_ecommerce
+            ].value;
+          },
+          merchant_link() {
+            return this.merchants[this.selected_merchant].ecommerces[
+              this.selected_ecommerce
+            ].uri;
+          },
         },
-      },
-      computed: {
-        merchant() {
-          let ecommerce = this.selected_merchant.split("-")[0];
-          let merchant = this.selected_merchant.split("-")[1];
+        beforeMount() {},
+      };
 
-          return this.ecommerces[ecommerce].merchants[merchant].value;
-        },
-        merchant_link() {
-          let ecommerce = this.selected_merchant.split("-")[0];
-          let merchant = this.selected_merchant.split("-")[1];
-
-          return this.ecommerces[ecommerce].merchants[merchant].uri;
-        },
-      },
-      beforeMount() { },
-    };
-
-    // instance of Vue Js
-    Vue.createApp(app).mount("#app");
-  </script>
-</body>
-
+      // instance of Vue Js
+      Vue.createApp(app).mount("#app");
+    </script>
+  </body>
 </html>
