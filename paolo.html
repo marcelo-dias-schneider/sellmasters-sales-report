@@ -287,20 +287,15 @@
                 ],
               },
               {
-                name: "Coolcultura",
+                name: "TheSneakers",
                 ecommerces: [
                   {
-                    name: "Shopify",
+                    name: "Shopify Coolcultura",
                     value: "coolcultura",
                     uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
                   },
-                ],
-              },
-              {
-                name: "Outlet Sanmichele",
-                ecommerces: [
                   {
-                    name: "Shopify",
+                    name: "Shopify Outlet Sanmichele",
                     value: "outletsanmichele",
                     uri: "../sellmasters_script_api_cms/repositories/retrieve_orders_shopify.php?",
                   },
@@ -318,7 +313,7 @@
               },
             ],
             selected_merchant: null,
-            selected_ecommerce: null,
+            selected_ecommerce: 0,
             // create data_min as 1st of 1 month ago
             data_min: new Date(
               new Date().getFullYear(),
@@ -365,19 +360,60 @@
               .then((result) => {
                 let csvFileData = "";
                 for (const [key, row] of Object.entries(result.data)) {
-                  // set the csv header
-                  if (key == 0) {
-                    for (const [index, value] of Object.entries(row)) {
-                      csvFileData += index + ";";
-                    }
-                    csvFileData += "\n";
-                  }
                   // get the row's data
                   for (const [index, value] of Object.entries(row)) {
                     csvFileData += value + ";";
                   }
                   csvFileData += "\n";
                 }
+
+                // order the csvFileData by data_acquisito after ordine_marketplace
+                csvFileData = csvFileData
+                  .split("\n")
+                  .slice(0, -1)
+                  .sort((a, b) => {
+                    let a_data_acquisito = a.split(";")[3];
+                    // convert a_data_acquisito to date
+                    a_data_acquisito = new Date(
+                      a_data_acquisito.split("-")[0],
+                      a_data_acquisito.split("-")[1] - 1,
+                      a_data_acquisito.split("-")[2]
+                    );
+                    let b_data_acquisito = b.split(";")[3];
+                    // convert b_data_acquisito to date
+                    b_data_acquisito = new Date(
+                      b_data_acquisito.split("-")[0],
+                      b_data_acquisito.split("-")[1] - 1,
+                      b_data_acquisito.split("-")[2]
+                    );
+                    let a_ordine_marketplace = a.split(";")[4];
+                    let b_ordine_marketplace = b.split(";")[4];
+                    if (a_data_acquisito < b_data_acquisito) {
+                      return -1;
+                    }
+                    if (a_data_acquisito > b_data_acquisito) {
+                      return 1;
+                    }
+                    if (a_data_acquisito == b_data_acquisito) {
+                      if (a_ordine_marketplace < b_ordine_marketplace) {
+                        return -1;
+                      }
+                      if (a_ordine_marketplace > b_ordine_marketplace) {
+                        return 1;
+                      }
+                    }
+                    return 0;
+                  })
+                  .join("\n");
+
+                // set the csv header
+                let header = "";
+                for (const [index, value] of Object.entries(result.data[0])) {
+                  header += index + ";";
+                }
+                header += "\n";
+
+                csvFileData = header + csvFileData;
 
                 let hiddenElement = document.createElement("a");
                 hiddenElement.href =
@@ -391,6 +427,7 @@
                 this.loading = false;
               })
               .catch((error) => {
+                console.log(error);
                 // report an error
                 this.error_message = "Nella tua ricerca non risulta ordini.";
                 // end the loading
@@ -423,11 +460,21 @@
             return this.all_merchants.sort(this.compareByName);
           },
           merchant() {
+            if (
+              this.selected_merchant === null &&
+              this.selected_merchant === null
+            )
+              return null;
             return this.merchants[this.selected_merchant].ecommerces[
               this.selected_ecommerce
             ].value;
           },
           merchant_link() {
+            if (
+              this.selected_merchant === null &&
+              this.selected_merchant === null
+            )
+              return null;
             return this.merchants[this.selected_merchant].ecommerces[
               this.selected_ecommerce
             ].uri;
