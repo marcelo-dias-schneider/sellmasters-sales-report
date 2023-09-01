@@ -91,6 +91,25 @@
               <label for="ecommerce">Seleziona un ecommerce</label>
             </div>
 
+            <div class="form-floating my-3" v-if="is_shopify">
+              <select
+                class="form-select"
+                id="type_of_data"
+                v-model="selected_type_of_data"
+                required
+              >
+                <option
+                  v-for="(type_of_data, key) in types_of_data"
+                  :key="key"
+                  :value="type_of_data.value"
+                  :name="key"
+                >
+                  {{ type_of_data.name }}
+                </option>
+              </select>
+              <label for="merchant">Seleziona un export</label>
+            </div>
+
             <div class="form-floating mb-3">
               <input
                 type="date"
@@ -342,6 +361,17 @@
                 ],
               },
             ],
+            types_of_data: [
+              {
+                name: "Export per articolo",
+                value: "line_item",
+              },
+              {
+                name: "Export per ordine",
+                value: "line_order",
+              },
+            ],
+            selected_type_of_data: "line_item",
             selected_merchant: null,
             selected_ecommerce: 0,
             // create data_min as 1st of 1 month ago
@@ -381,7 +411,7 @@
                 this.data_min +
                 "&date_max=" +
                 this.data_max +
-                "&format=paolo",
+                "&format=" + this.selected_type_of_data,
               {
                 method: "GET",
               }
@@ -469,7 +499,7 @@
           },
           merchant() {
             if (
-              this.selected_merchant === null &&
+              this.selected_merchant === null ||
               this.selected_merchant === null
             )
               return null;
@@ -479,13 +509,27 @@
           },
           merchant_link() {
             if (
-              this.selected_merchant === null &&
+              this.selected_merchant === null ||
               this.selected_merchant === null
             )
               return null;
             return this.merchants[this.selected_merchant].ecommerces[
               this.selected_ecommerce
             ].uri;
+          },
+          // merchant is the selected merchant and ecommerce selected has shopify
+          is_shopify() {
+            if (
+              this.selected_merchant === null ||
+              this.selected_merchant === null
+            )
+              return null;
+            return (
+              this.merchants[this.selected_merchant].ecommerces[
+                this.selected_ecommerce
+              ].name.includes("Shopify")
+            );
+            return false;
           },
         },
         beforeMount() {},
