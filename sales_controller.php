@@ -117,5 +117,7 @@ $response = array_reduce($response, function ($carry, $item) {
   return $carry;
 }, []);
 
+$response = array_values($response);
+
 # return
 echo json_encode($response);
