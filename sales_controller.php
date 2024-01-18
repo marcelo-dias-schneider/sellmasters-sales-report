@@ -105,5 +105,17 @@ foreach ($response as $key => $value) {
   $response[$key]['totale_ordine'] = (float) $value['totale_ordine'];
 }
 
+// sum quantita and totale_ordine where nome and marketplace are the same
+$response = array_reduce($response, function ($carry, $item) {
+  $key = $item['nome'] . $item['marketplace'];
+  if (isset($carry[$key])) {
+    $carry[$key]['quantita'] += $item['quantita'];
+    $carry[$key]['totale_ordine'] += $item['totale_ordine'];
+  } else {
+    $carry[$key] = $item;
+  }
+  return $carry;
+}, []);
+
 # return
 echo json_encode($response);
